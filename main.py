@@ -32,9 +32,9 @@ class Product(ProductCreate):
 
 # Mock data
 products: list[dict] = [
-    {"id": 1, "name": "Laptop", "price": 999.99, "category": "Electronics", "in_stock": True},
-    {"id": 2, "name": "Headphones", "price": 59.5, "category": "Electronics", "in_stock": True},
-    {"id": 3, "name": "Coffee Mug", "price": 12.0, "category": "Kitchen", "in_stock": False},
+    {"id": 1, "name": "Laptop", "price": 999.99, "category": "Electronics", "in_stock": False},
+    {"id": 2, "name": "Headphones", "price": 59.5, "category": "Electronics", "in_stock": False},
+    {"id": 3, "name": "Coffee Mug", "price": 12.0, "category": "Kitchen", "in_stock": True},
     {"id": 4, "name": "Desk Chair", "price": 149.0, "category": "Furniture", "in_stock": True},
 ]
 
@@ -55,11 +55,23 @@ def home():
 # READ all: GET /products (optionally filter: ?category=Kitchen&in_stock=true)
 @app.get("/products", response_model=list[Product])
 def list_products(category: Optional[str] = None, in_stock: Optional[bool] = None):
-    result = products
+    # No filters given: return everything
+    if category is None and in_stock is None:
+        return products
+
+    result = []  # start empty, each filter ADDS its matches
+
     if category is not None:
-        result = [p for p in result if p["category"].lower() == category.lower()]
+        for p in products:
+            if p["category"].lower() == category.lower():
+                result.append(p)
+
     if in_stock is not None:
-        result = [p for p in result if p["in_stock"] == in_stock]
+        for p in products:
+            # add only if it matches and wasn't already added by the category filter
+            if p["in_stock"] == in_stock and p not in result:
+                result.append(p)
+
     return result
 
 
