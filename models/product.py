@@ -11,7 +11,6 @@ class Product(Base):
     id = Column(Integer, primary_key=True, index=True)  # auto-incremented by the DB
     name = Column(String(255), nullable=False)
     price = Column(Float, nullable=False)
-    category = Column(String(100), nullable=False, index=True)
     in_stock = Column(Boolean, nullable=False, default=True)
 
     # Foreign key: every product belongs to one user
@@ -19,3 +18,10 @@ class Product(Base):
         Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
     )
     owner = relationship("User", back_populates="products")
+
+    # Foreign key: every product belongs to one category.
+    # RESTRICT = the database refuses to delete a category that still has products.
+    category_id = Column(
+        Integer, ForeignKey("categories.id", ondelete="RESTRICT"), nullable=False, index=True
+    )
+    category = relationship("Category", back_populates="products")
